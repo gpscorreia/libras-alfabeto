@@ -30,6 +30,10 @@ def finger_is_extended(landmarks, tip, pip):
     return landmarks[tip].y < landmarks[pip].y
 
 
+def thumb_is_extended(landmarks):
+    return abs(landmarks[4].x - landmarks[5].x) > abs(landmarks[3].x - landmarks[5].x)
+
+
 def main():
     model_path = download_model()
 
@@ -85,6 +89,8 @@ def main():
             # Percorrer as mãos detectadas
             for hand_landmarks in detection_result.hand_landmarks:
 
+                thumb_extended = thumb_is_extended(hand_landmarks)
+
                 index_extended = finger_is_extended(hand_landmarks, 8, 6)
 
                 middle_extended = finger_is_extended(hand_landmarks, 12, 10)
@@ -94,13 +100,15 @@ def main():
                 pinky_extended = finger_is_extended(hand_landmarks, 20, 18)
 
                 print(
-                    "Indicador:",
+                    "Polegar:",
+                    thumb_extended,
+                    " Indicador:",
                     index_extended,
-                    "Médio:",
+                    " Médio:",
                     middle_extended,
-                    "Anelar:",
+                    " Anelar:",
                     ring_extended,
-                    "Mindinho:",
+                    " Mindinho:",
                     pinky_extended,
                 )
 
