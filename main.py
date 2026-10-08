@@ -26,18 +26,17 @@ def download_model():
     return model_path
 
 
+def finger_is_extended(landmarks, tip, pip):
+    return landmarks[tip].y < landmarks[pip].y
+
+
 def main():
     model_path = download_model()
 
     # Configuração do MediaPipe Hand Landmarker
-    base_options = python.BaseOptions(
-        model_asset_path=model_path
-    )
+    base_options = python.BaseOptions(model_asset_path=model_path)
 
-    options = vision.HandLandmarkerOptions(
-        base_options=base_options,
-        num_hands=1
-    )
+    options = vision.HandLandmarkerOptions(base_options=base_options, num_hands=1)
 
     detector = vision.HandLandmarker.create_from_options(options)
 
@@ -65,10 +64,7 @@ def main():
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # Criar imagem para o MediaPipe
-        mp_image = mp.Image(
-            image_format=mp.ImageFormat.SRGB,
-            data=frame_rgb
-        )
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
 
         # Detectar mãos
         detection_result = detector.detect(mp_image)
@@ -83,11 +79,30 @@ def main():
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (0, 255, 0),
-                2
+                2,
             )
 
             # Percorrer as mãos detectadas
             for hand_landmarks in detection_result.hand_landmarks:
+
+                index_extended = finger_is_extended(hand_landmarks, 8, 6)
+
+                middle_extended = finger_is_extended(hand_landmarks, 12, 10)
+
+                ring_extended = finger_is_extended(hand_landmarks, 16, 14)
+
+                pinky_extended = finger_is_extended(hand_landmarks, 20, 18)
+
+                print(
+                    "Indicador:",
+                    index_extended,
+                    "Médio:",
+                    middle_extended,
+                    "Anelar:",
+                    ring_extended,
+                    "Mindinho:",
+                    pinky_extended,
+                )
 
                 # Desenhar os 21 landmarks
                 for landmark in hand_landmarks:
@@ -95,13 +110,7 @@ def main():
                     x = int(landmark.x * frame.shape[1])
                     y = int(landmark.y * frame.shape[0])
 
-                    cv2.circle(
-                        frame,
-                        (x, y),
-                        5,
-                        (0, 255, 0),
-                        -1
-                    )
+                    cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
 
                 # Mostrar o número de landmarks
                 cv2.putText(
@@ -111,7 +120,7 @@ def main():
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
                     (255, 255, 255),
-                    2
+                    2,
                 )
 
         # Mostrar imagem
